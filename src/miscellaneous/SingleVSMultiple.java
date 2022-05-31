@@ -44,7 +44,7 @@ public class SingleVSMultiple {
             for (long i = 0; i < M; i++) {
                 sum += i;
             }
-            System.out.printf("Sum is: " + sum + ", ");
+            System.out.print("Sum is: " + sum + ", ");
             long nano_endTime = System.nanoTime();
             System.out.println("Time consumed: " + ((double)(nano_endTime - nano_startTime) / nanoToSecond) + " s");
         }
@@ -62,8 +62,9 @@ public class SingleVSMultiple {
                 final int j = i;
                 tasks.add(() -> {
                     long sum = 0;
-                    for (long k = j * N; k < (j + 1) * N; k++)
-                    sum += k;
+                    for (long k = j * N; k < (j + 1) * N; k++) {
+                        sum += k;
+                    }
                     return sum;
                 });
             }
@@ -81,8 +82,7 @@ public class SingleVSMultiple {
 
             long sum = 0;
 
-            for (int i = 0; i < resultList.size(); i++) {
-                Future<Long> future = resultList.get(i);
+            for (Future<Long> future : resultList) {
                 try {
                     Long result = future.get();
                     sum += result;
@@ -91,7 +91,7 @@ public class SingleVSMultiple {
                 }
             }
 
-            System.out.printf("Sum is: " + sum + ", ");
+            System.out.print("Sum is: " + sum + ", ");
             long nano_endTime = System.nanoTime();
             System.out.println("Time consumed: " + ((double)(nano_endTime - nano_startTime) / nanoToSecond) + " s");
         }
