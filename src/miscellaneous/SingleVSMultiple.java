@@ -6,8 +6,11 @@ import java.util.concurrent.*;
 
 public class SingleVSMultiple {
 
-    private static final long n =   100_000_000L;
-    private static final long N = 1_000_000_000L;
+    private static final long nanoToSecond = 1000_000_000L;
+    private static final int numOfThread = 10;
+    private static final int numOfTask = 10;
+    private static final long N = 1000_000_000L;
+    private static final long M = numOfTask * N;
 
     public static void main(String[] args) {
         Test test = new Test(new SingleThread());
@@ -29,22 +32,21 @@ public class SingleVSMultiple {
         }
     }
 
-    static interface Strategy {
-        public void run();
+    interface Strategy {
+        void run();
     }
 
     static class SingleThread implements Strategy {
-
         @Override
         public void run() {
             long nano_startTime = System.nanoTime();
             long sum = 0;
-            for (long i = 0; i < N; i++) {
+            for (long i = 0; i < M; i++) {
                 sum += i;
             }
             System.out.printf("Sum is: " + sum + ", ");
             long nano_endTime = System.nanoTime();
-            System.out.println("Time consumed: " + ((double)(nano_endTime - nano_startTime) / 1_000_000_000) + " s");
+            System.out.println("Time consumed: " + ((double)(nano_endTime - nano_startTime) / nanoToSecond) + " s");
         }
     }
 
@@ -53,14 +55,14 @@ public class SingleVSMultiple {
         public void run() {
             long nano_startTime = System.nanoTime();
 
-            ExecutorService executor = Executors.newFixedThreadPool(10);
+            ExecutorService executor = Executors.newFixedThreadPool(numOfThread);
 
             List<Callable<Long>> tasks = new ArrayList<>();
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < numOfTask; i++) {
                 final int j = i;
                 tasks.add(() -> {
                     long sum = 0;
-                    for (long k = j * n; k < (j + 1) * n; k++)
+                    for (long k = j * N; k < (j + 1) * N; k++)
                     sum += k;
                     return sum;
                 });
@@ -75,6 +77,7 @@ public class SingleVSMultiple {
             }
 
             executor.shutdown();
+            while (!executor.isTerminated()) {}
 
             long sum = 0;
 
@@ -88,10 +91,9 @@ public class SingleVSMultiple {
                 }
             }
 
-
             System.out.printf("Sum is: " + sum + ", ");
             long nano_endTime = System.nanoTime();
-            System.out.println("Time consumed: " + ((double)(nano_endTime - nano_startTime) / 1_000_000_000) + " s");
+            System.out.println("Time consumed: " + ((double)(nano_endTime - nano_startTime) / nanoToSecond) + " s");
         }
     }
 }
